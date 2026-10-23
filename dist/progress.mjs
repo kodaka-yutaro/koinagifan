@@ -7,6 +7,11 @@ export function dayKey(date = new Date()) {
 export function afterDays(days, date = new Date()) {
   const next = new Date(date); next.setDate(next.getDate()+days); return dayKey(next);
 }
+export function reviewAfterDays(value, now = new Date()) {
+  const days = typeof value === 'string' && /^\d+$/.test(value.trim()) ? Number(value.trim()) : value;
+  if (!Number.isInteger(days) || days < 1 || days > 365) throw new Error('1〜365の整数で入力してください。');
+  return afterDays(days, now);
+}
 export function emptyState() { return {version:VERSION, entries:{}, goal:5}; }
 export function entry(state,id) {
   return state.entries[id] || {status:0, favorite:false, note:'', answer:'', nextReview:null, history:[], updatedAt:0};

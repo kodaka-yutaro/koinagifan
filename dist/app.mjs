@@ -1,4 +1,4 @@
-import {STORAGE_KEY,LABELS,dayKey,entry,emptyState,isDue,assess,validateBackup,mergeState,afterDays} from './progress.mjs';
+import {STORAGE_KEY,LABELS,dayKey,entry,emptyState,isDue,assess,validateBackup,mergeState,afterDays,reviewAfterDays} from './progress.mjs';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>n.toLocaleString('ja-JP');
@@ -73,18 +73,35 @@ function renderThemes(){
 }
 function refresh(){renderStats();renderList();}
 function resetFilters(){for(const id of ['search','theme','status'])$(id).value='';$('sort').value='number';page=1;}
+function renderReviewSchedule(id){
+  const nextReview=entry(state,id).nextReview;
+  $('reviewSummary').textContent=nextReview?`次の復習：${nextReview.replaceAll('-','/')}`:'次の復習：未設定';
+  $('noReview').disabled=!nextReview;
+  $('detailContent').querySelectorAll('[data-review-days]').forEach(b=>b.setAttribute('aria-pressed',String(nextReview===afterDays(+b.dataset.reviewDays))));
+}
 function openProblem(id){
   const p=catalog.find(p=>p.id===id);if(!p)return;activeId=id;const r=entry(state,id);
   $('detailNumber').textContent=`PROBLEM ${String(p.number).padStart(4,'0')} / ${p.id}`;
-  $('detailContent').innerHTML=`<h2 class="detail-title" id="detailTitle">${esc(p.title)}</h2><div class="detail-meta"><span class="tag">${esc(p.theme)}</span><span>${p.date.replaceAll('-','.')} の投稿</span><button class="star ${r.favorite?'selected':''}" id="detailStar" aria-label="お気に入り" aria-pressed="${r.favorite}">${r.favorite?'★':'☆'}</button></div><div class="source-box"><div class="source-heading"><strong>01　元の投稿で問題に挑戦</strong><a class="btn primary" href="${p.source}" target="_blank" rel="noopener noreferrer">Xで問題を見る ↗</a></div><p>問題は別のタブで開きます。解いたら、ここに戻って出来具合を記録しよう。${p.relatedCount>1?`<br>この投稿には収録図が${p.relatedCount}件あります。元投稿で図を確認してください。`:''}</p></div><section class="detail-section"><h3>02　今の出来具合は？</h3><div class="status-options" aria-label="出来具合">${LABELS.map((s,i)=>`<button class="status-option ${r.status===i?'selected':''}" data-assess="${i}" aria-pressed="${r.status===i}">${symbols[i]} ${s}<small>${["記録を戻す","復習は1日後","復習は3日後","復習は14日後"][i]}</small></button>`).join('')}</div><p class="detail-help">「解けた」は一度解けた問題。「マスター」は自信をもって解ける問題。<br>同じ状態を押すと、今日の復習として記録できます（自分で判定）。</p><div class="auto-review-note"><strong>復習日は自動で決まります</strong><p>上の出来具合を選ぶだけで、今日から1日後・3日後・14日後に設定。<br>日付の入力は不要です。都合に合わせて変更することもできます。</p></div><div class="review-control"><label for="reviewDate">次の復習日（変更は任意）</label><input type="date" id="reviewDate" value="${r.nextReview||''}" aria-label="次の復習日"><button class="btn" id="noReview">復習日を解除</button></div></section><section class="detail-section"><label for="note" class="note-label">気づき・苦手なポイント</label><textarea id="note" maxlength="20000" placeholder="見落とした筋や、次に気をつけたいことを残そう。">${esc(r.note)}</textarea><details><summary>自分の回答をメモする</summary><label for="answer" class="note-label">回答（自分用）</label><textarea id="answer" maxlength="20000" placeholder="考えた手順や答えをメモできます。">${esc(r.answer)}</textarea></details><div class="save-status" id="noteSaved">入力内容は自動保存</div></section><div class="history"><span>学習 ${r.history.length}${r.history.length===100?'回以上':'回'}</span>${r.history.slice(-3).reverse().map(h=>`<span>${h.date.slice(5).replace('-','/')} ${LABELS[h.status]}</span>`).join('')}</div><div class="detail-bottom"><button class="text-btn" id="backToList">一覧に戻る</button><button class="btn" id="nextProblem">次の問題へ →</button></div>`;
+  $('detailContent').innerHTML=`<h2 class="detail-title" id="detailTitle">${esc(p.title)}</h2><div class="detail-meta"><span class="tag">${esc(p.theme)}</span><span>${p.date.replaceAll('-','.')} の投稿</span><button class="star ${r.favorite?'selected':''}" id="detailStar" aria-label="お気に入り" aria-pressed="${r.favorite}">${r.favorite?'★':'☆'}</button></div><div class="source-box"><div class="source-heading"><strong>01　元の投稿で問題に挑戦</strong><a class="btn primary" href="${p.source}" target="_blank" rel="noopener noreferrer">Xで問題を見る ↗</a></div><p>問題は別のタブで開きます。解いたら、ここに戻って出来具合を記録しよう。${p.relatedCount>1?`<br>この投稿には収録図が${p.relatedCount}件あります。元投稿で図を確認してください。`:''}</p></div><section class="detail-section"><h3>02　今の出来具合は？</h3><div class="status-options" aria-label="出来具合">${LABELS.map((s,i)=>`<button class="status-option ${r.status===i?'selected':''}" data-assess="${i}" aria-pressed="${r.status===i}">${symbols[i]} ${s}<small>${["記録を戻す","復習は1日後","復習は3日後","復習は14日後"][i]}</small></button>`).join('')}</div><p class="detail-help">「解けた」は一度解けた問題。「マスター」は自信をもって解ける問題。<br>同じ状態を押すと、今日の復習として記録できます（自分で判定）。</p><div class="auto-review-note"><strong>復習日は自動で決まります</strong><p>上の出来具合を選ぶだけで、今日から1日後・3日後・14日後に設定。<br>日付の入力は不要です。変更したいときだけ、下で「何日後」を選べます。</p></div><div class="review-control"><p class="review-summary" id="reviewSummary" role="status"></p><h4 id="reviewHeading">復習のタイミングを変更（任意）</h4><p class="review-help" id="reviewHelp">今日から何日後に復習する？</p><div class="review-presets" role="group" aria-labelledby="reviewHelp">${[1,3,7,14,30].map(days=>`<button class="btn" data-review-days="${days}" aria-pressed="false">${days}日後</button>`).join('')}</div><div class="review-custom"><label for="reviewDays">今日から</label><input type="number" id="reviewDays" min="1" max="365" step="1" inputmode="numeric" placeholder="例：7" aria-label="復習までの日数" aria-describedby="reviewRange reviewError"><span>日後</span><button class="btn" id="setReview">に設定</button></div><p class="review-help" id="reviewRange">自由に指定する場合は1〜365日後。出来具合を選び直すと、自動設定に更新されます。</p><p class="review-error" id="reviewError" role="alert" hidden></p><button class="text-btn" id="noReview">復習日を解除</button></div></section><section class="detail-section"><label for="note" class="note-label">気づき・苦手なポイント</label><textarea id="note" maxlength="20000" placeholder="見落とした筋や、次に気をつけたいことを残そう。">${esc(r.note)}</textarea><details><summary>自分の回答をメモする</summary><label for="answer" class="note-label">回答（自分用）</label><textarea id="answer" maxlength="20000" placeholder="考えた手順や答えをメモできます。">${esc(r.answer)}</textarea></details><div class="save-status" id="noteSaved">入力内容は自動保存</div></section><div class="history"><span>学習 ${r.history.length}${r.history.length===100?'回以上':'回'}</span>${r.history.slice(-3).reverse().map(h=>`<span>${h.date.slice(5).replace('-','/')} ${LABELS[h.status]}</span>`).join('')}</div><div class="detail-bottom"><button class="text-btn" id="backToList">一覧に戻る</button><button class="btn" id="nextProblem">次の問題へ →</button></div>`;
   $('detailStar').onclick=()=>{const ok=modify(id,{favorite:!entry(state,id).favorite});refresh();openProblem(id);if(ok)notify(entry(state,id).favorite?'お気に入りに追加しました':'お気に入りを解除しました');};
   $('detailContent').querySelectorAll('[data-assess]').forEach(b=>b.onclick=()=>{
     state.entries[id]=assess(entry(state,id),+b.dataset.assess);const ok=save();refresh();openProblem(id);if(ok)notify(+b.dataset.assess?`${LABELS[+b.dataset.assess]}を記録。次の復習は${state.entries[id].nextReview.replaceAll("-","/")}に自動設定しました`:'未挑戦に戻しました');
   });
   const saveText=()=>{const ok=modify(id,{note:$('note').value,answer:$('answer').value});$('noteSaved').textContent=ok?'✓ 保存しました':'保存できません。バックアップしてください';$('noteSaved').classList.toggle('storage-error',!ok);};
   $('note').oninput=saveText;$('answer').oninput=saveText;
-  $('reviewDate').onchange=()=>{const value=$('reviewDate').value;const ok=modify(id,{nextReview:value||null});refresh();if(ok)notify('復習日を更新しました');};
-  $('noReview').onclick=()=>{const ok=modify(id,{nextReview:null});$('reviewDate').value='';refresh();if(ok)notify('復習日を解除しました');};
+  const clearReviewError=()=>{$('reviewError').hidden=true;$('reviewDays').removeAttribute('aria-invalid');};
+  const setReview=value=>{
+    let nextReview;
+    try{nextReview=reviewAfterDays(value);}catch(error){$('reviewError').textContent=error.message;$('reviewError').hidden=false;$('reviewDays').setAttribute('aria-invalid','true');$('reviewDays').focus();return;}
+    const ok=modify(id,{nextReview});clearReviewError();$('reviewDays').value=String(Number(value));refresh();renderReviewSchedule(id);
+    if(ok)notify(`今日から${Number(value)}日後（${nextReview.replaceAll('-','/')}）に復習日を設定しました`);
+  };
+  $('detailContent').querySelectorAll('[data-review-days]').forEach(b=>b.onclick=()=>setReview(b.dataset.reviewDays));
+  $('setReview').onclick=()=>setReview($('reviewDays').value);
+  $('reviewDays').oninput=clearReviewError;
+  $('reviewDays').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();setReview($('reviewDays').value);}};
+  $('noReview').onclick=()=>{const ok=modify(id,{nextReview:null});$('reviewDays').value='';clearReviewError();refresh();renderReviewSchedule(id);if(ok)notify('復習日を解除しました');};
+  renderReviewSchedule(id);
   $('backToList').onclick=()=>$('problemDialog').close();
   const pool=filtered.length?filtered:catalog;const idx=pool.findIndex(p=>p.id===id);const next=pool.find((p,i)=>i>idx&&p.id!==id);$('nextProblem').disabled=!next;
   $('nextProblem').onclick=()=>{if(next)openProblem(next.id);};
@@ -128,9 +145,9 @@ $('importFile').onchange=async e=>{
 };
 window.addEventListener('storage',e=>{
   if(e.key!==STORAGE_KEY||!e.newValue)return;
-  try{const incoming=validateBackup(JSON.parse(e.newValue),knownIds).state;state=mergeState(state,incoming);state.goal=incoming.goal;refresh();if($('problemDialog').open&&activeId){const r=entry(state,activeId);$('note').value=r.note;$('answer').value=r.answer;$('reviewDate').value=r.nextReview||'';}notify('別のタブの記録を反映しました');}catch{}
+  try{const incoming=validateBackup(JSON.parse(e.newValue),knownIds).state;state=mergeState(state,incoming);state.goal=incoming.goal;refresh();if($('problemDialog').open&&activeId){const r=entry(state,activeId);$('note').value=r.note;$('answer').value=r.answer;$('reviewDays').value='';renderReviewSchedule(activeId);}notify('別のタブの記録を反映しました');}catch{}
 });
-window.addEventListener('focus',()=>{if(day!==dayKey()){day=dayKey();refresh();}});
+window.addEventListener('focus',()=>{if(day!==dayKey()){day=dayKey();refresh();if($('problemDialog').open&&activeId)renderReviewSchedule(activeId);}});
 async function init(){
   try{const response=await fetch('./catalog.json');if(!response.ok)throw new Error('catalog');const data=await response.json();catalogMeta=data;catalog=data.problems;
     if(!Array.isArray(catalog)||!catalog.length||catalog.some(p=>!/^NAG-\d{6}$/.test(p.id)||!/^https:\/\/x\.com\/naginyan135\/status\/\d+$/.test(p.source)))throw new Error('catalog');

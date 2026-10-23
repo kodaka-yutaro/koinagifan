@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {dayKey,assess,entry,emptyState,isDue,validateBackup,mergeState} from '../dist/progress.mjs';
+import {dayKey,assess,entry,emptyState,isDue,validateBackup,mergeState,reviewAfterDays} from '../dist/progress.mjs';
 test('self assessment schedules review across month boundaries and keeps notes',()=>{
   const date=new Date(2026,0,30,23,30);const r={...entry(emptyState(),'NAG-000001'),note:'合駒に注意'};
   const solved=assess(r,2,date);assert.equal(solved.nextReview,'2026-02-02');assert.equal(solved.note,r.note);
@@ -25,4 +25,17 @@ test('merge protects newer edits and combines independent records',()=>{
 test('repeated ratings retain a bounded history and local calendar day',()=>{
   let r=entry(emptyState(),'A');for(let i=0;i<105;i++)r=assess(r,1,new Date(2026,0,1,0,5));
   assert.equal(r.history.length,100);assert.equal(dayKey(new Date(2026,0,1,0,5)),'2026-01-01');
+});
+
+test('relative review dates use local calendar days across month and year boundaries',()=>{
+  assert.equal(reviewAfterDays('7',new Date(2026,0,28,23,30)),'2026-02-04');
+  assert.equal(reviewAfterDays(1,new Date(2026,11,31,23,59)),'2027-01-01');
+  assert.equal(reviewAfterDays(' 14 ',new Date(2028,1,20,10)),'2028-03-05');
+  assert.equal(reviewAfterDays(1,new Date(2026,2,7,12)),'2026-03-08');
+  assert.equal(reviewAfterDays(365,new Date(2026,0,1)),'2027-01-01');
+});
+test('relative review dates reject empty, fractional, negative and out-of-range input',()=>{
+  for(const value of ['', ' ', 'abc', '1.5', 1.5, '-1', -1, 0, '0', 366, Infinity, NaN, null, undefined, true, [], '1e2']){
+    assert.throws(()=>reviewAfterDays(value),/1〜365/);
+  }
 });

@@ -7,3 +7,16 @@
 
 /* Automatic review guidance */
 .review-guide{font-size:11px;line-height:1.9;color:#687e5d;margin:17px 0 0}.review-guide strong{font-weight:600;margin-right:5px}.status-option small{display:block;font-size:9px;font-weight:normal;margin-top:7px;color:#6d8060}.auto-review-note{margin:17px 0;padding:15px 17px;background:#eaf1e1;border:1px solid #d7e5c9;border-radius:10px}.auto-review-note strong{font-size:13px;color:var(--green)}.auto-review-note p{font-size:11px;line-height:1.9;color:#637854;margin:7px 0 0}@media(max-width:680px){.review-guide{font-size:10px}.status-option small{font-size:8px}.auto-review-note{padding:13px}.auto-review-note p{font-size:10px}}
+
+.review-control{display:block;margin-top:18px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.review-summary{font-weight:650;color:var(--green);font-size:13px;margin:0 0 18px}
+.review-control h4{font-size:12px;margin:0 0 8px}
+.review-help{font-size:11px;line-height:1.8;color:#6c7967;margin:8px 0 12px}
+.review-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.review-presets .btn{min-height:42px}
+.review-presets [aria-pressed="true"]{background:#e8f0e0;border-color:var(--green);color:var(--green);font-weight:650}
+.review-custom{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.review-custom input{width:90px;font-size:16px;padding:10px}
+.review-custom .btn{min-height:42px}
+.review-error{font-size:11px;color:#a34328;line-height:1.8;margin:8px 0}
+.review-control .text-btn{font-size:11px;min-height:40px}
