@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="こいなぎさんが紹介した詰将棋の非公式リンク集。達成度と復習を記録し、一問ずつ、全問マスターへ。">
+  <meta name="theme-color" content="#245b48"><title>koinagifan — 一問ずつ、全問マスターへ。</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <a href="#main" class="skip">本文へスキップ</a>
+  <aside class="sidebar">
+    <a class="brand" href="./" aria-label="koinagifan ホーム"><span class="piece">歩</span><span>koinagi<span class="brand-light">fan</span><small>TSUMESHOGI COLLECTION</small></span></a>
+    <div class="side-label">MY LEARNING</div>
+    <nav class="nav" aria-label="メインナビゲーション">
+      <button data-view="all" class="active"><span>▦</span>問題一覧 <b id="navTotal">—</b></button>
+      <button data-view="review"><span>↻</span>今日の復習 <b id="navDue">0</b></button>
+      <button data-view="favorites"><span>☆</span>お気に入り</button>
+      <button data-view="themes"><span>▤</span>テーマから探す</button>
+    </nav>
+    <div class="side-card"><span class="small-piece">歩</span><p>昨日より、一問先へ。</p><small>解けた喜びを積み重ねて、<br>詰みの形を自分のものに。</small><div id="sideProgress" class="mini-progress"><i></i></div><small id="sideCount">マスター 0問</small></div>
+    <div class="side-bottom"><button id="backupBtn">⇅　記録のバックアップ</button><button id="aboutBtn">ⓘ　このサイトについて</button><span><i class="dot"></i> このブラウザに自動保存</span></div>
+  </aside>
+  <div class="main-wrap">
+    <header class="topbar"><div><span class="eyebrow">こいなぎさんの詰将棋リンク集</span><span class="unofficial">非公式</span></div><span class="top-date" id="todayDate"></span></header>
+    <main id="main">
+      <div id="saveWarning" class="warning" hidden role="alert"></div>
+      <section class="intro"><div><div class="eyebrow">YOUR TSUMESHOGI JOURNEY</div><h1>一問ずつ、<span>全問マスターへ。</span></h1><p>気になる問題を解く。出来具合を記録する。また挑戦する。</p></div><button class="btn primary" id="startBtn">今日の一問を選ぶ <span>→</span></button></section>
+      <section class="dashboard" aria-label="学習の進捗">
+        <article class="master-card"><div><span class="eyebrow">COLLECTION PROGRESS</span><h2>マスターへの道のり</h2><div class="master-count"><strong id="masterCount">0</strong><span>/ <span id="totalCount">—</span> 問</span></div><p id="remaining">読み込み中…</p></div><div class="ring" id="ring"><div><strong id="masterPercent">0<span>%</span></strong><small>MASTERED</small></div></div></article>
+        <article class="today-card"><div class="card-heading"><h2>今日の小さな目標</h2><label>1日 <select id="goal" aria-label="1日の目標"><option value="3">3問</option><option value="5" selected>5問</option><option value="10">10問</option><option value="20">20問</option></select></label></div><div class="today-count"><strong id="todayCount">0</strong><span>/ <b id="goalCount">5</b> 問</span><span id="todayMessage">まずは一問、始めよう</span></div><div class="goal-dots" id="goalDots"></div><div class="today-footer"><span>本日、出来具合を記録した問題数</span><button id="dueBtn">復習 <b id="dueCount">0</b>問 →</button></div></article>
+      </section>
+      <div class="status-summary" id="statusSummary"></div>
+      <section class="collection" aria-labelledby="listTitle">
+        <div class="section-heading"><div><span class="eyebrow">EXPLORE & PRACTICE</span><h2 id="listTitle">問題一覧 <span id="resultCount"></span></h2></div><button id="randomBtn" class="text-btn">⤨　表示中からランダム</button></div>
+        <div id="themeView" hidden></div>
+        <div id="problemView">
+          <div class="filters"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="問題番号・タイトル・テーマを検索" aria-label="問題を検索"></label><select id="theme" aria-label="テーマ"><option value="">すべてのテーマ</option></select><select id="status" aria-label="達成度"><option value="">すべての達成度</option><option value="0">未挑戦</option><option value="1">練習中</option><option value="2">解けた</option><option value="3">マスター</option></select><select id="sort" aria-label="並び順"><option value="number">番号順</option><option value="new">投稿が新しい順</option><option value="old">投稿が古い順</option><option value="review">復習日が近い順</option></select></div>
+          <div class="filter-info"><span id="filterInfo">投稿リンクを読み込み中…</span><button id="clearBtn" class="text-btn">絞り込みを解除</button></div>
+          <div class="table-head"><span>問題 / テーマ</span><span>出来具合</span><span>アクション</span></div>
+          <div id="problemList" aria-live="polite"><div class="empty">リンク集を準備しています…</div></div>
+          <div class="pagination"><button class="btn" id="prevPage">← 前へ</button><span id="pageInfo"></span><button class="btn" id="nextPage">次へ →</button></div>
+        </div>
+      </section>
+      <footer><p>問題はXの元投稿でご覧ください。画像・投稿本文は転載していません。</p><p>収録済みの問題を対象とした学習用リンク集です。全投稿の網羅・リンクの有効性を保証するものではありません。</p><div><span class="footer-brand">koinagifan</span><span>こいなぎさん・各作品の作者とは独立した非公式サイト</span><a href="https://github.com/kodaka-yutaro/koinagifan" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></footer>
+    </main>
+  </div>
+  <dialog id="problemDialog" aria-labelledby="detailTitle"><div class="dialog-head"><span class="eyebrow" id="detailNumber"></span><button class="close" data-close aria-label="閉じる">×</button></div><div id="detailContent"></div></dialog>
+  <dialog id="backupDialog" aria-labelledby="backupTitle"><div class="dialog-head"><h2 id="backupTitle">学習記録を持ち運ぶ</h2><button class="close" data-close aria-label="閉じる">×</button></div><p>出来具合・お気に入り・回答・メモ・復習日をJSONで保存できます。別の端末や、新しいドメインへの引っ越しにも。</p><div class="backup-box"><h3>① 今の記録を保存</h3><p>ブラウザのデータ削除に備えて、時々バックアップしておこう。</p><button id="exportBtn" class="btn primary">バックアップをダウンロード ↓</button></div><div class="backup-box"><h3>② 保存した記録を取り込む</h3><p>問題ごとに更新日時が新しい記録を採用します。現在の記録も残して統合します。回答やメモを含むため、自分のファイルを選んでください。</p><label for="importFile" class="file-label">バックアップJSONを選ぶ</label><input type="file" id="importFile" accept=".json,application/json"><p id="importMessage" role="status"></p></div><p class="help">記録はこの端末・このブラウザに保存されます。ログインによる端末間の自動同期はありません。</p></dialog>
+  <dialog id="aboutDialog" aria-labelledby="aboutTitle"><div class="dialog-head"><h2 id="aboutTitle">koinagifanについて</h2><button class="close" data-close aria-label="閉じる">×</button></div><p>こいなぎさん（@naginyan135）が紹介した詰将棋を探し、学習の出来具合を記録する非公式ファンサイトです。</p><h3>使い方</h3><ol><li>「Xで問題を見る」から元投稿を開く。</li><li>このサイトに戻って、出来具合を選ぶ。</li><li>復習日が来たらもう一度。身についたら「マスター」にチェック。</li></ol><p>判定は自分で行います。解答の自動採点はありません。「解けた」は一度解けた問題、「マスター」は自信をもって解ける問題の目安です。</p><h3>復習の目安</h3><p>練習中は1日後、解けたら3日後、マスターは14日後に復習候補になります。日付は各問題で変更できます。</p><h3>収録について</h3><p id="catalogInfo"></p><p>同じ投稿に複数の収録図がある場合、問題番号ごとに記録を分けています。元投稿の図と照らし合わせてください。テーマは既存の収集時の分類です。</p><p>投稿の紹介者と作品の作者は異なる場合があります。作品の作者・出典は元投稿をご確認ください。リンク切れや収録修正は<a href="https://github.com/kodaka-yutaro/koinagifan/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>へ。</p></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <noscript>学習記録にはJavaScriptが必要です。ブラウザでJavaScriptを有効にしてください。</noscript>
+</body>
+</html>
